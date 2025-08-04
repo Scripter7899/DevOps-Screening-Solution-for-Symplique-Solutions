@@ -1,0 +1,105 @@
+{
+  "project_name": "billing-optimization",
+  "resource_group": "billing-optimization-rg",
+  "location": "East US",
+  "subscription_id": "your-subscription-id-here",
+  "environment": "production",
+  "tags": {
+    "project": "billing-optimization",
+    "environment": "production",
+    "cost-center": "IT",
+    "owner": "billing-team"
+  },
+  "cosmos_db": {
+    "account_name": "billing-optimization-cosmos",
+    "database_name": "billing",
+    "container_name": "records",
+    "throughput_min": 400,
+    "throughput_max": 4000,
+    "consistency_level": "Session",
+    "enable_automatic_failover": true,
+    "backup_policy": "Continuous"
+  },
+  "storage": {
+    "account_name": "billingoptimizationstorage",
+    "container_name": "archived-billing-records",
+    "sku": "Standard_LRS",
+    "default_tier": "Cool",
+    "enable_versioning": true,
+    "delete_retention_days": 30,
+    "lifecycle_management": {
+      "enabled": true,
+      "rules": [
+        {
+          "name": "billing-records-lifecycle",
+          "enabled": true,
+          "type": "Lifecycle",
+          "definition": {
+            "filters": {
+              "blobTypes": ["blockBlob"],
+              "prefixMatch": ["billing-records/"]
+            },
+            "actions": {
+              "baseBlob": {
+                "tierToCool": {
+                  "daysAfterModificationGreaterThan": 30
+                },
+                "tierToArchive": {
+                  "daysAfterModificationGreaterThan": 90
+                },
+                "delete": {
+                  "daysAfterModificationGreaterThan": 2555
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "functions": {
+    "app_name": "billing-optimization-functions",
+    "storage_account": "billingoptfuncstorage",
+    "hosting_plan": "consumption",
+    "runtime": "python",
+    "runtime_version": "3.11",
+    "functions_version": "4",
+    "archival_schedule": "0 0 2 * * *"
+  },
+  "app_service": {
+    "plan_name": "billing-service-plan",
+    "app_name": "billing-optimization-service",
+    "sku": "B1",
+    "runtime": "PYTHON|3.11"
+  },
+  "monitoring": {
+    "application_insights": {
+      "name": "billing-optimization-insights",
+      "application_type": "web"
+    },
+    "log_analytics": {
+      "workspace_name": "billing-optimization-logs"
+    }
+  },
+  "security": {
+    "key_vault": {
+      "name": "billing-optimization-kv",
+      "sku": "standard"
+    },
+    "managed_identity": {
+      "enabled": true,
+      "type": "SystemAssigned"
+    }
+  },
+  "networking": {
+    "virtual_network": {
+      "enabled": false,
+      "name": "billing-optimization-vnet",
+      "address_space": "10.0.0.0/16"
+    },
+    "private_endpoints": {
+      "enabled": false
+    }
+  }
+}
+
