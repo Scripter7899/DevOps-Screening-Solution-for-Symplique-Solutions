@@ -457,7 +457,7 @@ For support and questions:
 
 ---
 
-**Author**: Manus AI  
+**Author**: Tanishq Bansal  
 **Version**: 1.0.0  
 **Last Updated**: August 4, 2025
 
